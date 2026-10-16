@@ -283,5 +283,5 @@ def brute_force_keys(cipher_hex, expected_start, expected_end, known_prefix):
 * **Overall Standing:** Successfully completed **9 out of 27** available challenges during the CTF window.
 
 #### Challenge Screenshots
-![CTF dashboard index showing final completion verification status](screenshort/C9-a.png)
+![CTF dashboard index showing final completion verification status](screenshort/index.png)
 
