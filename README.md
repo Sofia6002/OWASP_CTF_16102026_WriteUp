@@ -272,9 +272,9 @@ def brute_force_keys(cipher_hex, expected_start, expected_end, known_prefix):
 * **Flag:** `OWASP{c0mpu73r5_d0n7_5p34k_b1n4ry_7h3y_5p34k_67}`
 
 #### Challenge Screenshots
-![Original file layout showing repeated digits](screenshort/C8-a.png)
+![Original fs](screenshort/C8-a.png)
 ![Find and replace operation creating binary string](screenshort/C8-b.png)
-![CyberChef binary decoder output window](screenshort/C8-c.png)
+
 
 ---
 
