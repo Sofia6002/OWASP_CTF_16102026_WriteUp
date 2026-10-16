@@ -1,7 +1,5 @@
 # OWASP_CTF_16102026_WriteUp
-
-This report contains the solution and walkthrough for the challenge completed during the OWASP CTF.
-
+Solutions and flags
 ---
 
 ##  REVERSE ENGINEERING
