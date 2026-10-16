@@ -4,9 +4,9 @@ This report contains the solution and walkthrough for the challenge completed du
 
 ---
 
-## 🛠️ REVERSE ENGINEERING
+##  REVERSE ENGINEERING
 
-### 🧩 Challenge: Code Maze
+###  Challenge: Code Maze
 
 * **Goal:** Deobfuscate the provided Python file and determine its core functionality to retrieve the flag.
 * **Given:** An obfuscated Python script.
@@ -61,7 +61,7 @@ This report contains the solution and walkthrough for the challenge completed du
 
 #### How I Solved It:
 1. **Encoding Detection:** Used **CyberChef** (`https://gchq.github.io/CyberChef/#recipe=`) and applied the **Magic** recipe since the initial encoding type was unknown. The tool identified the format pattern as **Base64**.
-2. **Iterative Decoding:** Applied the **From Base64** recipe filter. The first decoding pass resulted in another string. Repeated the exact decoding process loop layer by layer until the nested encoding was fully stripped away to reveal the plaintext flag.
+2. **Iterative Decoding:** Applied **From Base64** recipe filter. The first decoding pass resulted in another string. Repeated the exact decoding process until the encoding was fully stripped off.
 
 * **Flag:** `OWASP{b4s364_1s_n0t_3ncrypt10n}`
 
@@ -75,12 +75,100 @@ This report contains the solution and walkthrough for the challenge completed du
 ### Challenge: Weak Lock
 
 * **Goal:** Decrypt a custom XOR cipher that uses a predictable 4-bit (or 4-character) repeating key.
-* **Given:** A file containing a hex-encoded encrypted string.
+* **Given:** File containing a hex-encoded encrypted string.
 
 #### How I Solved It:
-1. **Research & Script Customization:** Lacking prior experience with XOR decryption, I researched the methodology on Medium and located a Python script designed to brute-force a repeating XOR key using known plaintext attacks. I modified the script's expected plaintext boundaries to match the target CTF format (`OWASP{` and `}`).
-2. **Key Recovery:** Running the script against the provided hex string successfully extracted the repeating key pattern. Since the challenge specified a 4-character limitation, the structural key sequence was determined to be `AAAA`.
-3. **Decryption:** Fed the hex string and the recovered key `AAAA` into the online XOR cipher tool **dcode** (`https://www.dcode.fr/xor-cipher`) to execute the final reverse operation and print the plaintext flag.
+1. **Research & Script Customization:** Lacking prior experience with XOR decryption, I researched the methodology on Medium and located a Python script designed to brute-force a repeating XOR key using known plaintext attacks.and got this code from medium
+
+```python
+ import string
+import itertools
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import argparse
+
+def guess_key_prefix(cipher_hex, known_plaintext_start):
+    cipher_bytes = bytes.fromhex(cipher_hex)  # Convert hex to bytes
+    key_prefix = ""
+
+    # XOR each known plaintext character with the corresponding cipher byte
+    for i in range(min(len(cipher_bytes), len(known_plaintext_start))):
+        key_char = chr(cipher_bytes[i] ^ ord(known_plaintext_start[i]))
+        key_prefix += key_char
+
+    return key_prefix
+
+def xor_decrypt(cipher_hex, key):
+    cipher_bytes = bytes.fromhex(cipher_hex)
+    plaintext = ""
+
+    for i in range(len(cipher_bytes)):
+        key_char = key[i % len(key)]
+        plaintext += chr(cipher_bytes[i] ^ ord(key_char))
+
+    return plaintext
+
+def validate_key(candidate_key, cipher_hex, expected_start, expected_end):
+    decrypted = xor_decrypt(cipher_hex, candidate_key)
+
+    if decrypted.startswith(expected_start) and decrypted.endswith(expected_end):
+        return candidate_key, decrypted
+    return None
+
+def brute_force_keys(cipher_hex, expected_start, expected_end, known_prefix):
+    charset = string.ascii_letters + string.digits
+    key_len = 5
+    missing_len = key_len - len(known_prefix)
+    valid_results = []
+
+    # Generate all possible combinations for missing key characters
+    possible_keys = (known_prefix + ''.join(rest) for rest in itertools.product(charset, repeat=missing_len))
+
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [
+            executor.submit(validate_key, key, cipher_hex, expected_start, expected_end)
+            for key in possible_keys
+        ]
+
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                valid_results.append(result)
+
+    return valid_results
+
+    def main():
+       parser = argparse.ArgumentParser(description="XOR decryption tool for 5-char repeating key")
+       parser.add_argument('-e', '--encrypted', required=True, help="Hex-encoded XOR-encrypted flag")
+       args = parser.parse_args()
+
+       encrypted_flag = args.encrypted
+       known_start = "THM{"  
+       known_end = "}"       
+
+       # Step 1: Recover the prefix of the key using known plaintext
+       recovered_prefix = guess_key_prefix(encrypted_flag, known_start)
+       print(f"[*] Guessed key prefix: {repr(recovered_prefix)}")
+
+    # Step 2: Brute-force remaining characters and validate each full key
+    try:
+        matches = brute_force_keys(encrypted_flag, known_start, known_end, recovered_prefix)
+
+        if matches:
+            for key, flag in matches:
+                print(f"[+] Found key: {key}")
+                print(f"[+] Decrypted flag: {flag}")
+        else:
+            print("[!] No valid keys found.")
+    except Exception as error:
+        print(f"[!] Error during brute-force: {error}")
+
+    if __name__ == "__main__":
+       main()
+ ```
+
+2. I modified the script to match the target CTF format (`OWASP{` and `}`).
+3. **Key Recovery:** Running the script against the provided hex string successfully extracted the repeating key pattern. Since the challenge specified a 4-character limitation, the structural key sequence was determined to be `AAAA`.
+4. **Decryption:** Fed the hex string and the recovered key `AAAA` into the online XOR cipher tool **dcode** (`https://www.dcode.fr/xor-cipher`) to execute the final reverse operation and print the plaintext flag.
 
 * **Flag:** `OWASP{w34k_k3y_m4k3s_34sy_w0rk}`
 #### Challenge Screenshots
@@ -123,7 +211,7 @@ This report contains the solution and walkthrough for the challenge completed du
 #### How I Solved It:
 
 1. **Instance Initialization:** Started the provided web instance and navigated to the application interface.
-2. **Parameter Inspection:** Logged into a standard user account and inspected the URL path structure. The user ID parameter (`uid`) was explicitly visible in the browser address bar, confirming the application utilized the GET method to pull profile data.
+2. **Parameter Inspection:** Logged into a standard user account and inspected the URL path structure. The user ID parameter (`uid`) was explicitly visible in URL.
 3. **ID Manipulation:** Attempted to modify the parameter value to `2` to test for parameter tampering boundaries, which successfully loaded a separate profile page. 
 4. **Administrative Escalation:** Altered the `uid` parameter to `0`, acting on the logic that administrative accounts are typically generated first during database initialization where array indexing starts at zero. This successfully bypassed authorization barriers and displayed the administrator profile page along with the flag.
 
