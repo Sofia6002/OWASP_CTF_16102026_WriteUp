@@ -272,8 +272,8 @@ def brute_force_keys(cipher_hex, expected_start, expected_end, known_prefix):
 * **Flag:** `OWASP{c0mpu73r5_d0n7_5p34k_b1n4ry_7h3y_5p34k_67}`
 
 #### Challenge Screenshots
-![Original fs](screenshort/C8-a.png)
-![Find and replace operation creating binary string](screenshort/C8-b.png)
+![Original fs](screenshort/C10-a.png)
+![Find and replace operation creating binary string](screenshort/C10-b.png)
 
 
 ---
